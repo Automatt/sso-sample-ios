@@ -1,6 +1,6 @@
 # sso-sample-ios
 
-This sample demonstrates signin using SafariViewController as part of sign in.
+This sample demonstrates how to use SafariViewController as part of an SSO implementation.
 
 Familiarity with OpenID Connect or SAML is assumed.  Implementing these are left as an exercise to the user.
 
