@@ -14,9 +14,13 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
     var safariViewController: SFSafariViewController?
     
     // the calling view can inject a closure for when login is completed
+    
     var loginCompletion: () -> () = {}
 
-    // the url that triggers the login form
+    @IBOutlet weak var loginButton: UIButton!
+    
+    // the url that triggers the login form - this could be overriden by the value in NSUserDefaults set by an MDM server
+    
     var ssoUrl = "http://test.appdirect.com/oauth/authorize?response_type=token&client_id=EQVRImsj0i"
 
     override func viewDidLoad() {
@@ -25,6 +29,13 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         // use the notification center to detect when the login was successful
         
         NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(safariLogin(_:)), name: "closeSafariLoginView", object: nil)
+        
+        // fetch the url out of the prefs if it exists
+        
+        let defaults = NSUserDefaults.standardUserDefaults()
+        if let value = defaults.stringForKey("login_url") {
+            self.ssoUrl = value
+        }
 
     }
 
