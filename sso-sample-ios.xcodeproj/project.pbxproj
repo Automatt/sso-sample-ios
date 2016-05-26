@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		55F99CE91CF7A1260061E4C6 /* UserObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55F99CE81CF7A1260061E4C6 /* UserObject.swift */; };
 		CE579B001CDA5D1400CBB738 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE579AFF1CDA5D1400CBB738 /* AppDelegate.swift */; };
 		CE579B021CDA5D1400CBB738 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE579B011CDA5D1400CBB738 /* ViewController.swift */; };
 		CE579B051CDA5D1400CBB738 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CE579B031CDA5D1400CBB738 /* Main.storyboard */; };
@@ -34,6 +35,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		55F99CE81CF7A1260061E4C6 /* UserObject.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserObject.swift; sourceTree = "<group>"; };
 		CE579AFC1CDA5D1400CBB738 /* sso-sample-ios.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "sso-sample-ios.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		CE579AFF1CDA5D1400CBB738 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CE579B011CDA5D1400CBB738 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -103,6 +105,7 @@
 				CE579B061CDA5D1400CBB738 /* Assets.xcassets */,
 				CE579B081CDA5D1400CBB738 /* LaunchScreen.storyboard */,
 				CE579B0B1CDA5D1400CBB738 /* Info.plist */,
+				55F99CE81CF7A1260061E4C6 /* UserObject.swift */,
 			);
 			path = "sso-sample-ios";
 			sourceTree = "<group>";
@@ -258,6 +261,7 @@
 			files = (
 				CE579B021CDA5D1400CBB738 /* ViewController.swift in Sources */,
 				CE579B001CDA5D1400CBB738 /* AppDelegate.swift in Sources */,
+				55F99CE91CF7A1260061E4C6 /* UserObject.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -484,6 +488,7 @@
 				CE579B261CDA5D1400CBB738 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CE579B271CDA5D1400CBB738 /* Build configuration list for PBXNativeTarget "sso-sample-iosTests" */ = {
 			isa = XCConfigurationList;
@@ -492,6 +497,7 @@
 				CE579B291CDA5D1400CBB738 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		CE579B2A1CDA5D1400CBB738 /* Build configuration list for PBXNativeTarget "sso-sample-iosUITests" */ = {
 			isa = XCConfigurationList;
@@ -500,6 +506,7 @@
 				CE579B2C1CDA5D1400CBB738 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

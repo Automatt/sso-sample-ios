@@ -12,6 +12,7 @@ import SafariServices
 class ViewController: UIViewController, SFSafariViewControllerDelegate {
     
     var safariViewController: SFSafariViewController?
+    var userObject: [String:AnyObject]?
     
     // the calling view can inject a closure for when login is completed
     
@@ -21,7 +22,8 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
     
     // the url that triggers the login form - this could be overriden by the value in NSUserDefaults set by an MDM server
     
-    var ssoUrl = "http://test.appdirect.com/oauth/authorize?response_type=token&client_id=EQVRImsj0i"
+//    var ssoUrl = "http://test.appdirect.com/oauth/authorize?response_type=token&client_id=EQVRImsj0i"
+    var ssoUrl = "http://172.20.5.68:8080/"
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -59,6 +61,11 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         self.presentViewController(safariViewController!, animated: true, completion: nil)
     }
     
+    // called when the controller is initialized
+    
+    func safariViewController(controller: SFSafariViewController, didCompleteInitialLoad didLoadSuccessfully: Bool) {
+    }
+    
     // called when the controller is closed
     
     func safariViewControllerDidFinish(controller: SFSafariViewController) {
@@ -85,12 +92,13 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
     
     func safariLogin(notification: NSNotification) {
         
-        let url = notification.object as! NSURL
+//        let url = notification.object as! NSURL
+        let url = "user={\"password\"%3A\"*********\"%2C\"userName\"%3A\"kaligan%40gmail.com\"%2C\"authorities\"%3A[{\"authority\"%3A\"ROLE_USER\"}]}"
         
         // this url will contain a token we can use to create our session
         // parse out the token we need here and use it to create the session
         
-        //
+        userObject = UserObject.jsonFromUrl(withUrl: url)
         
         // finally, dismiss the login view
         
@@ -106,9 +114,12 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         // or that we can create a valid session and return true or
         // false otherwise
         
-        //
-        
-        return true
+        if userObject == nil {
+            return false
+        } else {
+            // do some login stuff...
+            return true
+        }
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
