@@ -21,25 +21,20 @@ class sso_sample_iosTests: XCTestCase {
         super.tearDown()
     }
     
-    func testThatUrlCanBeParsed() {
-        let didParseUrl = expectationWithDescription("testThatUrlCanBeParsed")
+    func testThatObjectCanBeCreatedFromUrl() {
+        let didParseUrl = expectationWithDescription("testThatObjectCanBeCreatedFromUrl")
         
-        let testUrl = "http://google.com/path/user={\"password\"%3A\"*********\"%2C\"userName\"%3A\"kaligan%40gmail.com\"%2C\"authorities\"%3A[{\"authority\"%3A\"ROLE_USER\"}]}"
+        let testUrl = "http://172.20.5.68:8080/?redirect=sso-sample://return/user={\"password\"%3A\"*********\"%2C\"userName\"%3A\"kaligan%40gmail.com\"%2C\"authorities\"%3A[{\"authority\"%3A\"ROLE_USER\"}]}"
         
-        if let userObject = UserObject.jsonFromUrl(withUrl: testUrl) {
+        if let userObject = UserObject.objectFromUrl(testUrl) {
             
-            XCTAssertEqual(userObject["userName"] as? String, "kaligan@gmail.com")
-            XCTAssertEqual(userObject["password"] as? String, "*********")
-            XCTAssertNotNil(userObject["authorities"] as? [[String:AnyObject]])
+            XCTAssertEqual(userObject.userName, "kaligan@gmail.com")
+            XCTAssertEqual(userObject.password, "*********")
+            XCTAssertEqual(userObject.authorities.count, 1)
             
-            if let authorities = userObject["authorities"] as? [[String:AnyObject]] {
-                
-                XCTAssertEqual(authorities.count, 1)
-                
-                if authorities.count > 0 {
-                    XCTAssertEqual(authorities[0]["authority"] as? String, "ROLE_USER")
-                    didParseUrl.fulfill()
-                }
+            if userObject.authorities.count > 0 {
+                XCTAssertEqual(userObject.authorities[0]["authority"] as? String, "ROLE_USER")
+                didParseUrl.fulfill()
             }
         }
         

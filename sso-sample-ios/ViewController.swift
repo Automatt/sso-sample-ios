@@ -9,22 +9,27 @@
 import UIKit
 import SafariServices
 
+protocol SAMLViewControllerDelegate {
+    func loginWasSccessful(userObject: UserObject)
+}
+
 class ViewController: UIViewController, SFSafariViewControllerDelegate {
     
     var safariViewController: SFSafariViewController?
-    var userObject: [String:AnyObject]?
+    var userObject: UserObject?
+    var delegate: SAMLViewControllerDelegate?
     
     // the calling view can inject a closure for when login is completed
     
-    var loginCompletion: () -> () = {}
-
     @IBOutlet weak var loginButton: UIButton!
     
     // the url that triggers the login form - this could be overriden by the value in NSUserDefaults set by an MDM server
     
 //    var ssoUrl = "http://test.appdirect.com/oauth/authorize?response_type=token&client_id=EQVRImsj0i"
-    var ssoUrl = "http://172.20.5.68:8080/"
-
+//    var ssoUrl = "http://172.20.5.68:8080/?redirect=sso-sample://return/"
+//    var ssoUrl = "http://162.157.235.21:9090/account/2/saml/login?redirect=sso-sample://return/"
+    var ssoUrl = "http://162.157.235.21:9090/account/2/saml/login/"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -38,7 +43,6 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         if let value = defaults.stringForKey("login_url") {
             self.ssoUrl = value
         }
-
     }
 
     override func didReceiveMemoryWarning() {
@@ -72,13 +76,22 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         
         controller.dismissViewControllerAnimated(true, completion: nil)
         
+        // <<<< REMOVE THIS TEST CODE
+        // This will simulate a valid resonse from the server until the server is ready for real world testing
+        if let urlString = "http://172.20.5.68:8080/saml/login?user={\"password\":\"*********\",\"userName\":\"kaligan@gmail.com\",\"authorities\":[{\"authority\":\"ROLE_USER\"}]}".stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLPathAllowedCharacterSet()) {
+            if let url = NSURL(string: urlString) {
+                NSNotificationCenter.defaultCenter().postNotificationName("closeSafariLoginView", object: url)
+            }
+        }
+        // >>>>
+        
         // check to see if we have a valid session
         
         if loginWasSuccessful() {
             
-            // call this view's dynamic closure
+            // call this view's delegate's closure
             
-            self.loginCompletion()
+            delegate?.loginWasSccessful(userObject!)
             
         } else {
             
@@ -92,13 +105,17 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
     
     func safariLogin(notification: NSNotification) {
         
-//        let url = notification.object as! NSURL
-        let url = "user={\"password\"%3A\"*********\"%2C\"userName\"%3A\"kaligan%40gmail.com\"%2C\"authorities\"%3A[{\"authority\"%3A\"ROLE_USER\"}]}"
+        let url = notification.object as! NSURL
         
         // this url will contain a token we can use to create our session
         // parse out the token we need here and use it to create the session
         
-        userObject = UserObject.jsonFromUrl(withUrl: url)
+        if let userObject = UserObject.objectFromUrl(url.absoluteString) {
+            // We got a valid, properly formatted response from the server to build a token
+            self.userObject = userObject
+        } else {
+            // The response URL was not properly formatted, we can't build an auth token
+        }
         
         // finally, dismiss the login view
         
@@ -114,12 +131,12 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         // or that we can create a valid session and return true or
         // false otherwise
         
-        if userObject == nil {
-            return false
-        } else {
+        if userObject != nil {
             // do some login stuff...
             return true
         }
+        
+        return false
     }
     
     override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
