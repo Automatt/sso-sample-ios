@@ -9,27 +9,25 @@
 import UIKit
 import SafariServices
 
-protocol SAMLViewControllerDelegate {
+protocol ViewControllerDelegate {
     func loginWasSccessful(userObject: UserObject)
 }
 
-class ViewController: UIViewController, SFSafariViewControllerDelegate, SAMLViewControllerDelegate {
+class ViewController: UIViewController, SFSafariViewControllerDelegate, ViewControllerDelegate {
     
     var safariViewController: SFSafariViewController?
     var userObject: UserObject?
-    var delegate: SAMLViewControllerDelegate?
+    var delegate: ViewControllerDelegate?
     @IBOutlet weak var statusLabel: UILabel!
-    
-    // the calling view can inject a closure for when login is completed
-    
     @IBOutlet weak var loginButton: UIButton!
     
     // the url that triggers the login form - this could be overriden by the value in NSUserDefaults set by an MDM server
     
-//    var ssoUrl = "http://test.appdirect.com/oauth/authorize?response_type=token&client_id=EQVRImsj0i"
-//    var ssoUrl = "http://172.20.5.68:8080/?redirect=sso-sample://return/"
-//    var ssoUrl = "http://162.157.235.21:9090/account/2/saml/login?redirect=sso-sample://return/"
-    var ssoUrl = "http://162.157.235.21:9090/account/2/saml/login/"
+    var ssoUrl = "http://162.157.235.21:9090/account/2/saml/login/?redirect=sso-sample://return/"
+    
+    // the url that triggers the server logout
+    
+    var ssoLogoutUrl = "https://test.appdirect.com/logout"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -47,15 +45,15 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, SAMLView
         
         self.delegate = self
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-
+    
     @IBAction func loginTapped(sender: AnyObject) {
         showLogin()
     }
-
+    
     // create the SafariViewController and present it to the user
     
     func showLogin() {
@@ -80,15 +78,6 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, SAMLView
     func safariViewControllerDidFinish(controller: SFSafariViewController) {
         
         controller.dismissViewControllerAnimated(true, completion: nil)
-        
-        // <<<< REMOVE THIS TEST CODE
-        // This will simulate a valid resonse from the server until the server is ready for real world testing
-//        if let urlString = "http://172.20.5.68:8080/saml/login?user={\"password\":\"*********\",\"userName\":\"kaligan@gmail.com\",\"authorities\":[{\"authority\":\"ROLE_USER\"}]}".stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLPathAllowedCharacterSet()) {
-//            if let url = NSURL(string: urlString) {
-//                NSNotificationCenter.defaultCenter().postNotificationName("closeSafariLoginView", object: url)
-//            }
-//        }
-        // >>>>
         
         // check to see if we have a valid session
         
@@ -133,7 +122,6 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, SAMLView
         // finally, dismiss the login view
         
         self.safariViewController!.dismissViewControllerAnimated(true, completion: nil)
-        
     }
     
     // check to see if we have a session

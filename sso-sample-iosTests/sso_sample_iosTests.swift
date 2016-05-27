@@ -28,13 +28,15 @@ class sso_sample_iosTests: XCTestCase {
         
         if let userObject = UserObject.objectFromUrl(testUrl) {
             
-            XCTAssertEqual(userObject.userName, "kaligan@gmail.com")
-            XCTAssertEqual(userObject.password, "*********")
-            XCTAssertEqual(userObject.authorities.count, 1)
+            XCTAssertEqual(userObject.info["userName"] as? String, "kaligan@gmail.com")
+            XCTAssertEqual(userObject.info["password"] as? String, "*********")
+            XCTAssertNotNil(userObject.info["authorities"] as? [[String:AnyObject]])
             
-            if userObject.authorities.count > 0 {
-                XCTAssertEqual(userObject.authorities[0]["authority"] as? String, "ROLE_USER")
-                didParseUrl.fulfill()
+            if let authorities = userObject.info["authorities"] as? [[String:AnyObject]] {
+                if authorities.count > 0 {
+                    XCTAssertEqual(authorities[0]["authority"] as? String, "ROLE_USER")
+                    didParseUrl.fulfill()
+                }
             }
         }
         

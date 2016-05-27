@@ -19,10 +19,13 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="q2j-Ma-Y0U">
-                                <rect key="frame" x="279" y="285" width="42" height="30"/>
+                                <rect key="frame" x="270" y="285" width="60" height="30"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="udL-Sw-03u">
-                                        <rect key="frame" x="0.0" y="0.0" width="42" height="30"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="60" height="30"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="60" id="Ut0-gL-PHD"/>
+                                        </constraints>
                                         <state key="normal" title="Log In"/>
                                         <connections>
                                             <action selector="loginTapped:" destination="BYZ-38-t0r" eventType="touchUpInside" id="Ob2-Dt-X04"/>
