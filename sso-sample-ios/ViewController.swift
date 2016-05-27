@@ -13,7 +13,7 @@ protocol SAMLViewControllerDelegate {
     func loginWasSccessful(userObject: UserObject)
 }
 
-class ViewController: UIViewController, SFSafariViewControllerDelegate {
+class ViewController: UIViewController, SFSafariViewControllerDelegate, SAMLViewControllerDelegate {
     
     var safariViewController: SFSafariViewController?
     var userObject: UserObject?
@@ -43,6 +43,8 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         if let value = defaults.stringForKey("login_url") {
             self.ssoUrl = value
         }
+        
+        self.delegate = self
     }
 
     override func didReceiveMemoryWarning() {
@@ -62,6 +64,8 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         safariViewController = SFSafariViewController(URL: authUrl)
         safariViewController!.delegate = self
         
+        // present the login form in a safari view controller
+        
         self.presentViewController(safariViewController!, animated: true, completion: nil)
     }
     
@@ -78,11 +82,11 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         
         // <<<< REMOVE THIS TEST CODE
         // This will simulate a valid resonse from the server until the server is ready for real world testing
-        if let urlString = "http://172.20.5.68:8080/saml/login?user={\"password\":\"*********\",\"userName\":\"kaligan@gmail.com\",\"authorities\":[{\"authority\":\"ROLE_USER\"}]}".stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLPathAllowedCharacterSet()) {
-            if let url = NSURL(string: urlString) {
-                NSNotificationCenter.defaultCenter().postNotificationName("closeSafariLoginView", object: url)
-            }
-        }
+//        if let urlString = "http://172.20.5.68:8080/saml/login?user={\"password\":\"*********\",\"userName\":\"kaligan@gmail.com\",\"authorities\":[{\"authority\":\"ROLE_USER\"}]}".stringByAddingPercentEncodingWithAllowedCharacters(NSCharacterSet.URLPathAllowedCharacterSet()) {
+//            if let url = NSURL(string: urlString) {
+//                NSNotificationCenter.defaultCenter().postNotificationName("closeSafariLoginView", object: url)
+//            }
+//        }
         // >>>>
         
         // check to see if we have a valid session
@@ -110,10 +114,18 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         // this url will contain a token we can use to create our session
         // parse out the token we need here and use it to create the session
         
-        if let userObject = UserObject.objectFromUrl(url.absoluteString) {
-            // We got a valid, properly formatted response from the server to build a token
-            self.userObject = userObject
+        userObject = UserObject.objectFromUrl(url.absoluteString)
+        
+        // check to see if we have a valid session
+        
+        if loginWasSuccessful() {
+            
+            // call this view's delegate's closure
+            
+            delegate?.loginWasSccessful(userObject!)
+            
         } else {
+            
             // The response URL was not properly formatted, we can't build an auth token
         }
         
@@ -132,7 +144,9 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         // false otherwise
         
         if userObject != nil {
-            // do some login stuff...
+            
+            // We got a valid, properly formatted response from the server to build a token
+            
             return true
         }
         
@@ -145,6 +159,9 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         
         NSNotificationCenter.defaultCenter().removeObserver(self, name: "closeSafariLoginView", object: nil)
     }
-
+    
+    func loginWasSccessful(userObject: UserObject) {
+        loginButton.titleLabel?.text = "You have logged in"
+    }
 }
 

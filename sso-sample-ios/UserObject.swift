@@ -49,10 +49,11 @@ class UserObject {
         let jsonString = url.substringFromIndex(range!.endIndex)
         
         if let jsonString = jsonString.stringByRemovingPercentEncoding {
+            print(jsonString)
             if let data = jsonString.dataUsingEncoding(NSUTF8StringEncoding) {
                 do {
-                    if let params = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments) as? [String:AnyObject] {
-                        return UserObject(withInfo: params)
+                    if let info = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments) as? [String:AnyObject] {
+                        return UserObject(withInfo: info)
                     }
                 } catch {
                     print(error)
