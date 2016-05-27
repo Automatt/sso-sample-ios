@@ -11,6 +11,7 @@ import SafariServices
 
 protocol ViewControllerDelegate {
     func loginWasSccessful(userObject: UserObject)
+    func logoutWasSccessful()
 }
 
 class ViewController: UIViewController, SFSafariViewControllerDelegate, ViewControllerDelegate {
@@ -18,16 +19,17 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, ViewCont
     var safariViewController: SFSafariViewController?
     var userObject: UserObject?
     var delegate: ViewControllerDelegate?
+    
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var loginButton: UIButton!
     
     // the url that triggers the login form - this could be overriden by the value in NSUserDefaults set by an MDM server
     
-    var ssoUrl = "http://162.157.235.21:9090/account/2/saml/login/?redirect=sso-sample://return/"
+    var ssoUrl = "http://isv-ad.us-west-2.elasticbeanstalk.com/account/2/saml/login/?redirect=sso-sample://return/"
     
     // the url that triggers the server logout
     
-    var ssoLogoutUrl = "https://test.appdirect.com/logout"
+    var logoutUrl = "https://test.appdirect.com/logout"
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,7 +53,11 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, ViewCont
     }
     
     @IBAction func loginTapped(sender: AnyObject) {
-        showLogin()
+        if loginButton.titleLabel?.text == "Log In" {
+            showLogin()
+        } else {
+            showLogout()
+        }
     }
     
     // create the SafariViewController and present it to the user
@@ -61,6 +67,18 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, ViewCont
         let authUrl = NSURL(string: ssoUrl)!
         
         safariViewController = SFSafariViewController(URL: authUrl)
+        safariViewController!.delegate = self
+        
+        // present the login form in a safari view controller
+        
+        self.presentViewController(safariViewController!, animated: true, completion: nil)
+    }
+    
+    func showLogout() {
+        
+        let authLogoutUrl = NSURL(string: logoutUrl)!
+        
+        safariViewController = SFSafariViewController(URL: authLogoutUrl)
         safariViewController!.delegate = self
         
         // present the login form in a safari view controller
@@ -79,20 +97,14 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, ViewCont
         
         controller.dismissViewControllerAnimated(true, completion: nil)
         
-        // check to see if we have a valid session
+        // User has ended session
+        // Destroy the local user object and call this view's delegate's closure
         
-        if loginWasSuccessful() {
-            
-            // call this view's delegate's closure
-            
-            delegate?.loginWasSccessful(userObject!)
-            
-        } else {
-            
-            // present the login form in a safari view controller
-            
-            self.presentViewController(safariViewController!, animated: true, completion: nil)
-        }
+        userObject = nil
+        
+        delegate?.logoutWasSccessful()
+        
+        loginButton.setTitle("Log In", forState: .Normal)
     }
     
     // called via the web url scheme callback, from AppDelegate
@@ -113,6 +125,8 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, ViewCont
             // call this view's delegate's closure
             
             delegate?.loginWasSccessful(userObject!)
+            
+            loginButton.setTitle("Log Out", forState: .Normal)
             
         } else {
             
@@ -150,6 +164,7 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, ViewCont
     }
     
     // Custom callback handler on successful login
+    // These delegate handlers would typically be external
     
     func loginWasSccessful(userObject: UserObject) {
         
@@ -157,6 +172,11 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, ViewCont
             
             statusLabel.text = "You have logged in with user name " + userName
         }
+    }
+    
+    func logoutWasSccessful() {
+        
+        statusLabel.text = "You are not logged in..."
     }
 }
 
