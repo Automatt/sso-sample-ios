@@ -18,6 +18,7 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, SAMLView
     var safariViewController: SFSafariViewController?
     var userObject: UserObject?
     var delegate: SAMLViewControllerDelegate?
+    @IBOutlet weak var statusLabel: UILabel!
     
     // the calling view can inject a closure for when login is completed
     
@@ -160,8 +161,14 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, SAMLView
         NSNotificationCenter.defaultCenter().removeObserver(self, name: "closeSafariLoginView", object: nil)
     }
     
+    // Custom callback handler on successful login
+    
     func loginWasSccessful(userObject: UserObject) {
-        loginButton.titleLabel?.text = "You have logged in"
+        
+        if let userName = userObject.info["username"] as? String {
+            
+            statusLabel.text = "You have logged in with user name " + userName
+        }
     }
 }
 
