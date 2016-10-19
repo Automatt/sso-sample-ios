@@ -21,11 +21,23 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>com.appdirect.sso-sample</string>
+			<string></string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>sso-sample</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLName</key>
+			<string></string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.appdirect.myapps</string>
 			</array>
 		</dict>
 	</array>
