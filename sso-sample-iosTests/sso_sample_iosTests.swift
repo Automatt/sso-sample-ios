@@ -21,16 +21,26 @@ class sso_sample_iosTests: XCTestCase {
         super.tearDown()
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measureBlock {
-            // Put the code you want to measure the time of here.
+    func testThatObjectCanBeCreatedFromUrl() {
+        let didParseUrl = expectationWithDescription("testThatObjectCanBeCreatedFromUrl")
+        
+        let testToken = ""
+        
+        if let userObject = UserObject.objectFromAccessToken(testToken) {
+            
+            XCTAssertEqual(userObject.info["userName"] as? String, "kaligan@gmail.com")
+            XCTAssertEqual(userObject.info["password"] as? String, "*********")
+            XCTAssertNotNil(userObject.info["authorities"] as? [[String:AnyObject]])
+            
+            if let authorities = userObject.info["authorities"] as? [[String:AnyObject]] {
+                if authorities.count > 0 {
+                    XCTAssertEqual(authorities[0]["authority"] as? String, "ROLE_USER")
+                    didParseUrl.fulfill()
+                }
+            }
         }
+        
+        waitForExpectationsWithTimeout(10, handler: nil)
     }
     
 }

@@ -7,95 +7,123 @@
 //
 
 import UIKit
-import SafariServices
+import AppAuth
 
-class ViewController: UIViewController, SFSafariViewControllerDelegate {
-    
-    var safariViewController: SFSafariViewController?
-    
-    // the calling view can inject a closure for when login is completed
-    
-    var loginCompletion: () -> () = {}
+protocol ViewControllerDelegate {
+    func loginWasSccessful(userObject: UserObject)
+    func logoutWasSccessful()
+}
 
+class ViewController: UIViewController, ViewControllerDelegate {
+    
+    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    var userObject: UserObject?
+    var delegate: ViewControllerDelegate?
+    
+    @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var loginButton: UIButton!
     
-    // the url that triggers the login form - this could be overriden by the value in NSUserDefaults set by an MDM server
+    // OAuth2 config parameters - this could be overriden by the value in NSUserDefaults set by an MDM server
     
-    var ssoUrl = "http://test.appdirect.com/oauth/authorize?response_type=token&client_id=EQVRImsj0i"
-
+    var clientId = "A1Ih7ZUhAl"
+    var redirectUrl = "com.appdirect.myapps://home:443/"
+    var authorizationEndpoint = "https://marketplace.appdirect.com/oauth/authorize"
+    var tokenEndpoint = "https://myapps.appdirect.com/api/authentication/channels/appdirect/authorize"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // use the notification center to detect when the login was successful
-        
-        NSNotificationCenter.defaultCenter().addObserver(self, selector: #selector(safariLogin(_:)), name: "closeSafariLoginView", object: nil)
-        
-        // fetch the url out of the prefs if it exists
+        // fetch the OAuth2 config out of the MDM if it exists
         
         let defaults = NSUserDefaults.standardUserDefaults()
-        if let value = defaults.stringForKey("login_url") {
-            self.ssoUrl = value
+        if let clientId = defaults.stringForKey("clientId"), redirectUrl = defaults.stringForKey("redirectUrl"), authorizationEndpoint = defaults.stringForKey("authorizationEndpoint"), tokenEndpoint = defaults.stringForKey("tokenEndpoint") {
+            self.clientId = clientId
+            self.redirectUrl = redirectUrl
+            self.authorizationEndpoint = authorizationEndpoint
+            self.tokenEndpoint = tokenEndpoint
         }
-
+        
+        delegate = self
     }
-
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
     }
-
+    
     @IBAction func loginTapped(sender: AnyObject) {
-        showLogin()
-    }
-
-    // create the SafariViewController and present it to the user
-    
-    func showLogin() {
-        
-        let authUrl = NSURL(string: ssoUrl)!
-        
-        safariViewController = SFSafariViewController(URL: authUrl)
-        safariViewController!.delegate = self
-        
-        self.presentViewController(safariViewController!, animated: true, completion: nil)
-    }
-    
-    // called when the controller is closed
-    
-    func safariViewControllerDidFinish(controller: SFSafariViewController) {
-        
-        controller.dismissViewControllerAnimated(true, completion: nil)
-        
-        // check to see if we have a valid session
-        
-        if loginWasSuccessful() {
-            
-            // call this view's dynamic closure
-            
-            self.loginCompletion()
-            
+        if loginButton.titleLabel?.text == "Log In" {
+            login()
         } else {
-            
-            // present the login form in a safari view controller
-            
-            self.presentViewController(safariViewController!, animated: true, completion: nil)
+            logout()
         }
     }
     
-    // called via the web url scheme callback, from AppDelegate
+    // create the AppAuth request flow and present it to the user
     
-    func safariLogin(notification: NSNotification) {
+    func login() {
         
-        let url = notification.object as! NSURL
+        // build the auth configuration
+        let configuration = OIDServiceConfiguration(authorizationEndpoint: NSURL(string: authorizationEndpoint)!, tokenEndpoint: NSURL(string: tokenEndpoint)!)
         
-        // this url will contain a token we can use to create our session
-        // parse out the token we need here and use it to create the session
+        // build the auth request
         
-        //
+        let request = OIDAuthorizationRequest(configuration: configuration, clientId: clientId, scopes: [OIDScopeOpenID, OIDScopeProfile, "ROLE_USER"], redirectURL: NSURL(string: redirectUrl)!, responseType: "code id_token", additionalParameters: [:])
         
-        // finally, dismiss the login view
+        // present the auth request
         
-        self.safariViewController!.dismissViewControllerAnimated(true, completion: nil)
+        appDelegate.currentAuthorizationFlow = OIDAuthorizationService.presentAuthorizationRequest(request, presentingViewController: self, callback: { (authorizationResponse: OIDAuthorizationResponse?, error: NSError?) in
+            guard error == nil else {
+                print("Authorization request error: \(error?.localizedDescription)")
+                return
+            }
+            
+            if authorizationResponse != nil {
+                let authState = OIDAuthState(authorizationResponse: authorizationResponse!)
+                
+                // perform the code exchange request
+                
+                if let tokenExchangeRequest = authState?.lastAuthorizationResponse.tokenExchangeRequest() {
+                    OIDAuthorizationService.performTokenRequest(tokenExchangeRequest, callback: { (tokenResponse: OIDTokenResponse?, error: NSError?) in
+                        guard error == nil else {
+                            print("Token exchange error: \(error?.localizedDescription)")
+                            return
+                        }
+                        
+                        if let tokenResponse = tokenResponse {
+                            
+                            // parse out the token we need here and use it to create the session
+                            
+                            self.userObject = UserObject.objectFromAccessToken(tokenResponse.accessToken!)
+                            
+                            // check to see if we have a valid session
+                    
+                            if self.loginWasSuccessful() {
+                                
+                                // call this view's delegate's closure
+                                
+                                self.delegate?.loginWasSccessful(self.userObject!)
+                                
+                            } else {
+                                
+                                // the response token was not properly formatted, we can't build a user object
+                            }
+                            
+                        } else {
+                            print("Token exchange error: %@", error?.localizedDescription)
+                        }
+                    })
+                }
+            }
+        })
+    }
+    
+    func logout() {
         
+        // Here we destory the user object
+        
+        userObject = nil
+        
+        delegate?.logoutWasSccessful()
     }
     
     // check to see if we have a session
@@ -106,17 +134,35 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate {
         // or that we can create a valid session and return true or
         // false otherwise
         
-        //
+        if userObject != nil {
+            
+            // We got a valid, properly formatted response from the server to build a user object
+            
+            return true
+        }
         
-        return true
+        return false
     }
     
-    override func prepareForSegue(segue: UIStoryboardSegue, sender: AnyObject?) {
+    // Custom callback handler on successful login
+    // These delegate handlers would typically be external
+    
+    func loginWasSccessful(userObject: UserObject) {
         
-        // clean up our notification observer
+        // We should update the UI
         
-        NSNotificationCenter.defaultCenter().removeObserver(self, name: "closeSafariLoginView", object: nil)
+        statusLabel.text = "You have logged in"
+        
+        loginButton.setTitle("Log Out", forState: .Normal)
     }
-
+    
+    func logoutWasSccessful() {
+        
+        // We should update the UI
+        
+        statusLabel.text = "You are not logged in..."
+        
+        loginButton.setTitle("Log In", forState: .Normal)
+    }
 }
 
