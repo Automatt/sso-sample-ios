@@ -7,4 +7,4 @@ sso-sample-ios.xcodeproj/project.xcworkspace/xcuserdata/Darnell.xcuserdatad/User
 
 *.xcuserstate
 
-*.Pods/*
+*Pods/*
