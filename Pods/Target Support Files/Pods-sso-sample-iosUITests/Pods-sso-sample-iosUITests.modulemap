@@ -1,6 +1,0 @@
-framework module Pods_sso_sample_iosUITests {
-  umbrella header "Pods-sso-sample-iosUITests-umbrella.h"
-
-  export *
-  module * { export * }
-}
