@@ -24,9 +24,9 @@ class sso_sample_iosTests: XCTestCase {
     func testThatObjectCanBeCreatedFromUrl() {
         let didParseUrl = expectationWithDescription("testThatObjectCanBeCreatedFromUrl")
         
-        let testUrl = "http://172.20.5.68:8080/?redirect=sso-sample://return/user={\"password\"%3A\"*********\"%2C\"userName\"%3A\"kaligan%40gmail.com\"%2C\"authorities\"%3A[{\"authority\"%3A\"ROLE_USER\"}]}"
+        let testToken = ""
         
-        if let userObject = UserObject.objectFromUrl(testUrl) {
+        if let userObject = UserObject.objectFromAccessToken(testToken) {
             
             XCTAssertEqual(userObject.info["userName"] as? String, "kaligan@gmail.com")
             XCTAssertEqual(userObject.info["password"] as? String, "*********")
