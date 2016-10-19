@@ -116,7 +116,7 @@ class ViewController: UIViewController, SFSafariViewControllerDelegate, ViewCont
         // this url will contain a token we can use to create our session
         // parse out the token we need here and use it to create the session
         
-        userObject = UserObject.objectFromUrl(url.absoluteString)
+        userObject = UserObject.objectFromUrl(url.absoluteString!)
         
         // check to see if we have a valid session
         
