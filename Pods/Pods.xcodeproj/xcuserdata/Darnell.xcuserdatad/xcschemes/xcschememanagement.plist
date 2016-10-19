@@ -4,6 +4,11 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
+		<key>AppAuth.xcscheme</key>
+		<dict>
+			<key>isShown</key>
+			<false/>
+		</dict>
 		<key>Pods-sso-sample-ios.xcscheme</key>
 		<dict>
 			<key>isShown</key>
@@ -22,7 +27,12 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>CE9CE71A71A709EFAD9F1ADBE22F3806</key>
+		<key>008FFD459911D0E9A5039E829BF7EA8B</key>
+		<dict>
+			<key>primary</key>
+			<true/>
+		</dict>
+		<key>0468FEF22A83C4D8EB06AE606BF7D7C2</key>
 		<dict>
 			<key>primary</key>
 			<true/>
