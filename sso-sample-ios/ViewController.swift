@@ -43,7 +43,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // fetch the OAuth2 config out of the MDM
+        // fetch the AppConfig parameters out of the defaults, where they are put by the MDM during remote install
         
         let defaults = NSUserDefaults.standardUserDefaults()
         if let  isvAccountId = defaults.stringForKey("com.appdirect.isv.accountid"),
