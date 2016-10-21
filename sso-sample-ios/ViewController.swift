@@ -23,24 +23,39 @@ class ViewController: UIViewController, ViewControllerDelegate {
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var loginButton: UIButton!
     
-    // OAuth2 config parameters - this could be overriden by the value in NSUserDefaults set by an MDM server
+    // OAuth2 config parameters - this will be dependent on your server implementation.
+    // We're using an AppDirect test marketplace as our primary identity provider in this example.
+    // You should replace these with your primary OAuth2 identity provider, even if AppDirect is a downstream IDP
     
     var clientId = "A1Ih7ZUhAl"
     var redirectUrl = "com.appdirect.myapps://home:443/"
     var authorizationEndpoint = "https://marketplace.appdirect.com/oauth/authorize"
     var tokenEndpoint = "https://myapps.appdirect.com/api/authentication/channels/appdirect/authorize"
     
+    //  AppConfig config parameters - we expect these configurations to be set by an MDM server
+    //  and made available to our app via the standardUserDefaults mechanism.
+    
+    var isvAccountId = "1234"   // unique identifier provided by vendor system when the subscription was created
+    var isvUserId = "5678"      // unique identifier for the user in the vendor service
+    var companyId = "91011"      // unique identifier for the marketplace company that purchased the subscription
+    var marketplaceUrl = "https://marketplace.appdirect.com" // base url for the marketplace
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        // fetch the OAuth2 config out of the MDM if it exists
+        // fetch the OAuth2 config out of the MDM
         
         let defaults = NSUserDefaults.standardUserDefaults()
-        if let clientId = defaults.stringForKey("clientId"), redirectUrl = defaults.stringForKey("redirectUrl"), authorizationEndpoint = defaults.stringForKey("authorizationEndpoint"), tokenEndpoint = defaults.stringForKey("tokenEndpoint") {
-            self.clientId = clientId
-            self.redirectUrl = redirectUrl
-            self.authorizationEndpoint = authorizationEndpoint
-            self.tokenEndpoint = tokenEndpoint
+        if let  isvAccountId = defaults.stringForKey("com.appdirect.isv.accountid"),
+                isvUserId = defaults.stringForKey("com.appdirect.isv.userid"),
+                companyId = defaults.stringForKey("com.appdirect.companyid"),
+                marketplaceUrl = defaults.stringForKey("com.appdirect.marketplace.url") {
+            
+            self.isvAccountId = isvAccountId
+            self.isvUserId = isvUserId
+            self.companyId = companyId
+            self.marketplaceUrl = marketplaceUrl
+            
         }
         
         delegate = self
@@ -65,9 +80,16 @@ class ViewController: UIViewController, ViewControllerDelegate {
         // build the auth configuration
         let configuration = OIDServiceConfiguration(authorizationEndpoint: NSURL(string: authorizationEndpoint)!, tokenEndpoint: NSURL(string: tokenEndpoint)!)
         
+        // package the appConfig parameters
+        
+        let appConfigParameters = ["com.appdirect.isv.accountid": isvAccountId,
+                                   "com.appdirect.isv.userid": isvUserId,
+                                   "com.appdirect.companyid": companyId,
+                                   "com.appdirect.marketplace.url": marketplaceUrl]
+        
         // build the auth request
         
-        let request = OIDAuthorizationRequest(configuration: configuration, clientId: clientId, scopes: [OIDScopeOpenID, OIDScopeProfile, "ROLE_USER"], redirectURL: NSURL(string: redirectUrl)!, responseType: "code id_token", additionalParameters: [:])
+        let request = OIDAuthorizationRequest(configuration: configuration, clientId: clientId, scopes: [OIDScopeOpenID, OIDScopeProfile, "ROLE_USER"], redirectURL: NSURL(string: redirectUrl)!, responseType: "code id_token", additionalParameters: appConfigParameters)
         
         // present the auth request
         
