@@ -10,13 +10,13 @@ import UIKit
 import AppAuth
 
 protocol ViewControllerDelegate {
-    func loginWasSccessful(userObject: UserObject)
+    func loginWasSccessful(_ userObject: UserObject)
     func logoutWasSccessful()
 }
 
 class ViewController: UIViewController, ViewControllerDelegate {
     
-    let appDelegate = UIApplication.sharedApplication().delegate as! AppDelegate
+    let appDelegate = UIApplication.shared.delegate as! AppDelegate
     var userObject: UserObject?
     var delegate: ViewControllerDelegate?
     
@@ -45,11 +45,11 @@ class ViewController: UIViewController, ViewControllerDelegate {
         
         // fetch the AppConfig parameters out of the defaults, where they are put by the MDM during remote install
         
-        let defaults = NSUserDefaults.standardUserDefaults()
-        if let  isvAccountId = defaults.stringForKey("com.appdirect.isv.accountid"),
-                isvUserId = defaults.stringForKey("com.appdirect.isv.userid"),
-                companyId = defaults.stringForKey("com.appdirect.companyid"),
-                marketplaceUrl = defaults.stringForKey("com.appdirect.marketplace.url") {
+        let defaults = UserDefaults.standard
+        if let  isvAccountId = defaults.string(forKey: "com.appdirect.isv.accountid"),
+                let isvUserId = defaults.string(forKey: "com.appdirect.isv.userid"),
+                let companyId = defaults.string(forKey: "com.appdirect.companyid"),
+                let marketplaceUrl = defaults.string(forKey: "com.appdirect.marketplace.url") {
             
             self.isvAccountId = isvAccountId
             self.isvUserId = isvUserId
@@ -65,7 +65,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
         super.didReceiveMemoryWarning()
     }
     
-    @IBAction func loginTapped(sender: AnyObject) {
+    @IBAction func loginTapped(_ sender: AnyObject) {
         if loginButton.titleLabel?.text == "Log In" {
             login()
         } else {
@@ -78,7 +78,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
     func login() {
         
         // build the auth configuration
-        let configuration = OIDServiceConfiguration(authorizationEndpoint: NSURL(string: authorizationEndpoint)!, tokenEndpoint: NSURL(string: tokenEndpoint)!)
+        let configuration = OIDServiceConfiguration(authorizationEndpoint: URL(string: authorizationEndpoint)!, tokenEndpoint: URL(string: tokenEndpoint)!)
         
         // package the appConfig parameters
         
@@ -89,7 +89,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
         
         // build the auth request
         
-        let request = OIDAuthorizationRequest(configuration: configuration, clientId: clientId, scopes: [OIDScopeOpenID, OIDScopeProfile, "ROLE_USER"], redirectURL: NSURL(string: redirectUrl)!, responseType: "code id_token", additionalParameters: appConfigParameters)
+        let request = OIDAuthorizationRequest(configuration: configuration, clientId: clientId, scopes: [OIDScopeOpenID, OIDScopeProfile, "ROLE_USER"], redirectURL: URL(string: redirectUrl)!, responseType: "code id_token", additionalParameters: appConfigParameters)
         
         // present the auth request
         
@@ -169,13 +169,13 @@ class ViewController: UIViewController, ViewControllerDelegate {
     // Custom callback handler on successful login
     // These delegate handlers would typically be external
     
-    func loginWasSccessful(userObject: UserObject) {
+    func loginWasSccessful(_ userObject: UserObject) {
         
         // We should update the UI
         
         statusLabel.text = "You have logged in"
         
-        loginButton.setTitle("Log Out", forState: .Normal)
+        loginButton.setTitle("Log Out", for: UIControlState())
     }
     
     func logoutWasSccessful() {
@@ -184,7 +184,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
         
         statusLabel.text = "You are not logged in..."
         
-        loginButton.setTitle("Log In", forState: .Normal)
+        loginButton.setTitle("Log In", for: UIControlState())
     }
 }
 
