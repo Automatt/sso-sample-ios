@@ -130,8 +130,6 @@ class ViewController: UIViewController, ViewControllerDelegate {
                                 // the response token was not properly formatted, we can't build a user object
                             }
                             
-                        } else {
-                            print("Token exchange error: %@", error?.localizedDescription)
                         }
                     })
                 }
