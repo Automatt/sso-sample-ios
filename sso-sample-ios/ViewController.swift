@@ -73,6 +73,15 @@ class ViewController: UIViewController, ViewControllerDelegate {
         }
     }
     
+    @IBAction func didPressSet(_ sender: AnyObject) {
+    }
+    
+    @IBAction func didPressClear(_ sender: AnyObject) {
+    }
+    
+    @IBAction func didPressView(_ sender: AnyObject) {
+    }
+    
     // create the AppAuth request flow and present it to the user
     
     func login() {
