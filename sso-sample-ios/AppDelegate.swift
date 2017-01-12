@@ -26,7 +26,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
         // Sends the URL to the current authorization flow (if any) which will process it if it relates to
         // an authorization response.
-        if currentAuthorizationFlow?.resumeAuthorizationFlowWithURL(url) == true {
+        if currentAuthorizationFlow?.resumeAuthorizationFlow(with: url) == true {
             currentAuthorizationFlow = nil
             return true
         }
