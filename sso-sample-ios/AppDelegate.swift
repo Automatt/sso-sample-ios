@@ -15,7 +15,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     var currentAuthorizationFlow: OIDAuthorizationFlowSession?
     
-    func application(application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject: AnyObject]?) -> Bool {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplicationLaunchOptionsKey: Any]?) -> Bool {
         return true
     }
     
@@ -23,10 +23,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
      @brief Handles inbound URLs. Checks if the URL matches the redirect URI for a pending
      AppAuth authorization request.
      */
-    func application(app: UIApplication, openURL url: NSURL, options: [String : AnyObject]) -> Bool {
+    func application(_ app: UIApplication, open url: URL, options: [UIApplicationOpenURLOptionsKey : Any]) -> Bool {
         // Sends the URL to the current authorization flow (if any) which will process it if it relates to
         // an authorization response.
-        if currentAuthorizationFlow?.resumeAuthorizationFlowWithURL(url) == true {
+        if currentAuthorizationFlow?.resumeAuthorizationFlow(with: url) == true {
             currentAuthorizationFlow = nil
             return true
         }

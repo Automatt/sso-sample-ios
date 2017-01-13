@@ -16,28 +16,28 @@ class UserObject {
         self.info = info
     }
     
-    class func objectFromAccessToken(token: String) -> UserObject? {
+    class func objectFromAccessToken(_ token: String) -> UserObject? {
         
         //splitting JWT to extract payload
-        let arr = token.componentsSeparatedByString(".")
+        let arr = token.components(separatedBy: ".")
         
         //base64 encoded string i want to decode
         var base64String = arr[1] as String
         if base64String.characters.count % 4 != 0 {
             let padlen = 4 - base64String.characters.count % 4
-            base64String += String(count: padlen, repeatedValue: Character("="))
+            base64String += String(repeating: "=", count: padlen)
         }
         
         //attempting to convert base64 string to nsdata
-        let nsdata: NSData = NSData(base64EncodedString: base64String, options: NSDataBase64DecodingOptions(rawValue: 0))!
+        let nsdata: Data = Data(base64Encoded: base64String, options: NSData.Base64DecodingOptions(rawValue: 0))!
         
         //decoding fails because nsdata unwraps as nil
-        let jsonString: NSString = NSString(data: nsdata, encoding: NSUTF8StringEncoding)!
+        let jsonString: NSString = NSString(data: nsdata, encoding: String.Encoding.utf8.rawValue)!
         
         //unpack json string into dictionary
-        if let data = jsonString.dataUsingEncoding(NSUTF8StringEncoding) {
+        if let data = jsonString.data(using: String.Encoding.utf8.rawValue) {
             do {
-                if let info = try NSJSONSerialization.JSONObjectWithData(data, options: NSJSONReadingOptions.AllowFragments) as? [String:AnyObject] {
+                if let info = try JSONSerialization.jsonObject(with: data, options: JSONSerialization.ReadingOptions.allowFragments) as? [String:AnyObject] {
                     return UserObject(withInfo: info)
                 }
             } catch {
