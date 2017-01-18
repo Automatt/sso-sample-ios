@@ -73,6 +73,55 @@ class ViewController: UIViewController, ViewControllerDelegate {
         }
     }
     
+    @IBAction func didPressSet(_ sender: AnyObject) {
+        
+        //
+        let configuration = [
+            "test_value":"foo"
+        ]
+        
+        UserDefaults.standard.set(configuration, forKey: "com.apple.configuration.managed")
+        UserDefaults.standard.synchronize()
+        
+        let viewController = UIAlertController(title: "Configuration has been set", message: nil, preferredStyle: .alert)
+        
+        viewController.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: { (action: UIAlertAction) in
+            
+        }))
+        
+        present(viewController, animated: true, completion: nil)
+    }
+    
+    @IBAction func didPressClear(_ sender: AnyObject) {
+        UserDefaults.standard.removeObject(forKey: "com.apple.configuration.managed")
+        UserDefaults.standard.synchronize()
+        
+        let viewController = UIAlertController(title: "Configuration has been cleared", message: nil, preferredStyle: .alert)
+        
+        viewController.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: { (action: UIAlertAction) in
+            
+        }))
+        
+        present(viewController, animated: true, completion: nil)
+    }
+    
+    @IBAction func didPressView(_ sender: AnyObject) {
+        var managedConfiguration: String? = nil
+        if let configuration = UserDefaults.standard.value(forKey: "com.apple.configuration.managed") as? Dictionary<String, AnyObject> {
+            managedConfiguration = configuration.description
+        } else {
+            managedConfiguration = "Empty"
+        }
+        
+        let viewController = UIAlertController(title: "com.apple.configuration.managed", message: managedConfiguration, preferredStyle: .alert)
+        
+        viewController.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: { (action: UIAlertAction) in
+            
+        }))
+        
+        present(viewController, animated: true, completion: nil)
+    }
+    
     // create the AppAuth request flow and present it to the user
     
     func login() {
