@@ -44,19 +44,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
         super.viewDidLoad()
         
         // fetch the AppConfig parameters out of the defaults, where they are put by the MDM during remote install
-        
-        let defaults = UserDefaults.standard
-        if let  isvAccountId = defaults.string(forKey: "com.appdirect.isv.accountid"),
-                let isvUserId = defaults.string(forKey: "com.appdirect.isv.userid"),
-                let companyId = defaults.string(forKey: "com.appdirect.companyid"),
-                let marketplaceUrl = defaults.string(forKey: "com.appdirect.marketplace.url") {
-            
-            self.isvAccountId = isvAccountId
-            self.isvUserId = isvUserId
-            self.companyId = companyId
-            self.marketplaceUrl = marketplaceUrl
-            
-        }
+        loadAppConfig()
         
         delegate = self
     }
@@ -75,13 +63,13 @@ class ViewController: UIViewController, ViewControllerDelegate {
     
     @IBAction func didPressSet(_ sender: AnyObject) {
         
-        //
-        let configuration = [
-            "test_value":"foo"
-        ]
-        
-        UserDefaults.standard.set(configuration, forKey: "com.apple.configuration.managed")
+        UserDefaults.standard.set("1234", forKey: "com.appdirect.isv.accountid")
+        UserDefaults.standard.set("5678", forKey: "com.appdirect.isv.userid")
+        UserDefaults.standard.set("91011", forKey: "com.appdirect.companyid")
+        UserDefaults.standard.set("https://marketplace.appdirect.com", forKey: "com.appdirect.marketplace.url")
         UserDefaults.standard.synchronize()
+        
+        loadAppConfig()
         
         let viewController = UIAlertController(title: "Configuration has been set", message: nil, preferredStyle: .alert)
         
@@ -93,7 +81,11 @@ class ViewController: UIViewController, ViewControllerDelegate {
     }
     
     @IBAction func didPressClear(_ sender: AnyObject) {
-        UserDefaults.standard.removeObject(forKey: "com.apple.configuration.managed")
+        
+        UserDefaults.standard.removeObject(forKey: "com.appdirect.isv.accountid")
+        UserDefaults.standard.removeObject(forKey: "com.appdirect.isv.userid")
+        UserDefaults.standard.removeObject(forKey: "com.appdirect.companyid")
+        UserDefaults.standard.removeObject(forKey: "com.appdirect.marketplace.url")
         UserDefaults.standard.synchronize()
         
         let viewController = UIAlertController(title: "Configuration has been cleared", message: nil, preferredStyle: .alert)
@@ -106,20 +98,43 @@ class ViewController: UIViewController, ViewControllerDelegate {
     }
     
     @IBAction func didPressView(_ sender: AnyObject) {
-        var managedConfiguration: String? = nil
-        if let configuration = UserDefaults.standard.value(forKey: "com.apple.configuration.managed") as? Dictionary<String, AnyObject> {
-            managedConfiguration = configuration.description
-        } else {
-            managedConfiguration = "Empty"
+        
+        let configuration: [AnyHashable:String?] = ["com.appdirect.isv.accountid": UserDefaults.standard.value(forKey: "com.appdirect.isv.accountid") as? String,
+        "com.appdirect.isv.userid": UserDefaults.standard.value(forKey: "com.appdirect.isv.userid") as? String,
+        "com.appdirect.companyid": UserDefaults.standard.value(forKey: "com.appdirect.companyid") as? String,
+        "com.appdirect.marketplace.url": UserDefaults.standard.value(forKey: "com.appdirect.marketplace.url") as? String,]
+        
+        var managedConfiguration = ""
+        for (key,value) in configuration {
+            if let value = value {
+                managedConfiguration += "\"\(key)\": \"\(value)\",\n"
+            }
         }
         
-        let viewController = UIAlertController(title: "com.apple.configuration.managed", message: managedConfiguration, preferredStyle: .alert)
+        let viewController = UIAlertController(title: "Managed Configuration", message: "[\(managedConfiguration)]", preferredStyle: .alert)
         
         viewController.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: { (action: UIAlertAction) in
             
         }))
         
         present(viewController, animated: true, completion: nil)
+    }
+    
+    // fetch the AppConfig parameters out of the defaults, where they are put by the MDM during remote install
+    
+    func loadAppConfig() {
+        
+        let defaults = UserDefaults.standard
+        if let  isvAccountId = defaults.string(forKey: "com.appdirect.isv.accountid"),
+            let isvUserId = defaults.string(forKey: "com.appdirect.isv.userid"),
+            let companyId = defaults.string(forKey: "com.appdirect.companyid"),
+            let marketplaceUrl = defaults.string(forKey: "com.appdirect.marketplace.url") {
+            
+            self.isvAccountId = isvAccountId
+            self.isvUserId = isvUserId
+            self.companyId = companyId
+            self.marketplaceUrl = marketplaceUrl
+        }
     }
     
     // create the AppAuth request flow and present it to the user
@@ -186,9 +201,9 @@ class ViewController: UIViewController, ViewControllerDelegate {
         })
     }
     
+    // Here we destory the user object
+    
     func logout() {
-        
-        // Here we destory the user object
         
         userObject = nil
         
