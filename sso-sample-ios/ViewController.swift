@@ -63,10 +63,12 @@ class ViewController: UIViewController, ViewControllerDelegate {
     
     @IBAction func didPressSet(_ sender: AnyObject) {
         
-        UserDefaults.standard.set("1234", forKey: "com.appdirect.isv.accountid")
-        UserDefaults.standard.set("5678", forKey: "com.appdirect.isv.userid")
-        UserDefaults.standard.set("91011", forKey: "com.appdirect.companyid")
-        UserDefaults.standard.set("https://marketplace.appdirect.com", forKey: "com.appdirect.marketplace.url")
+        let managedConfiguration = ["com.appdirect.isv.accountid": isvAccountId,
+                                   "com.appdirect.isv.userid": isvUserId,
+                                   "com.appdirect.companyid": companyId,
+                                   "com.appdirect.marketplace.url": marketplaceUrl]
+        
+        UserDefaults.standard.set(managedConfiguration, forKey: "com.apple.configuration.managed")
         UserDefaults.standard.synchronize()
         
         loadAppConfig()
@@ -82,10 +84,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
     
     @IBAction func didPressClear(_ sender: AnyObject) {
         
-        UserDefaults.standard.removeObject(forKey: "com.appdirect.isv.accountid")
-        UserDefaults.standard.removeObject(forKey: "com.appdirect.isv.userid")
-        UserDefaults.standard.removeObject(forKey: "com.appdirect.companyid")
-        UserDefaults.standard.removeObject(forKey: "com.appdirect.marketplace.url")
+        UserDefaults.standard.removeObject(forKey: "com.apple.configuration.managed")
         UserDefaults.standard.synchronize()
         
         let viewController = UIAlertController(title: "Configuration has been cleared", message: nil, preferredStyle: .alert)
@@ -99,19 +98,15 @@ class ViewController: UIViewController, ViewControllerDelegate {
     
     @IBAction func didPressView(_ sender: AnyObject) {
         
-        let configuration: [AnyHashable:String?] = ["com.appdirect.isv.accountid": UserDefaults.standard.value(forKey: "com.appdirect.isv.accountid") as? String,
-        "com.appdirect.isv.userid": UserDefaults.standard.value(forKey: "com.appdirect.isv.userid") as? String,
-        "com.appdirect.companyid": UserDefaults.standard.value(forKey: "com.appdirect.companyid") as? String,
-        "com.appdirect.marketplace.url": UserDefaults.standard.value(forKey: "com.appdirect.marketplace.url") as? String,]
-        
-        var managedConfiguration = ""
-        for (key,value) in configuration {
-            if let value = value {
-                managedConfiguration += "\"\(key)\": \"\(value)\",\n"
+        var managedConfigurationString = ""
+        let defaults = UserDefaults.standard
+        if let managedConfiguration = defaults.dictionary(forKey: "com.apple.configuration.managed") {
+            for (key,value) in managedConfiguration {
+                managedConfigurationString += "\"\(key)\": \"\(value)\",\n"
             }
         }
         
-        let viewController = UIAlertController(title: "Managed Configuration", message: "[\(managedConfiguration)]", preferredStyle: .alert)
+        let viewController = UIAlertController(title: "Managed Configuration", message: "[\(managedConfigurationString)]", preferredStyle: .alert)
         
         viewController.addAction(UIAlertAction(title: "Dismiss", style: .default, handler: { (action: UIAlertAction) in
             
@@ -125,15 +120,18 @@ class ViewController: UIViewController, ViewControllerDelegate {
     func loadAppConfig() {
         
         let defaults = UserDefaults.standard
-        if let  isvAccountId = defaults.string(forKey: "com.appdirect.isv.accountid"),
-            let isvUserId = defaults.string(forKey: "com.appdirect.isv.userid"),
-            let companyId = defaults.string(forKey: "com.appdirect.companyid"),
-            let marketplaceUrl = defaults.string(forKey: "com.appdirect.marketplace.url") {
+        if let managedConfiguration = defaults.dictionary(forKey: "com.apple.configuration.managed") {
             
-            self.isvAccountId = isvAccountId
-            self.isvUserId = isvUserId
-            self.companyId = companyId
-            self.marketplaceUrl = marketplaceUrl
+            if let  isvAccountId = managedConfiguration["com.appdirect.isv.accountid"] as? String,
+                let isvUserId = managedConfiguration["com.appdirect.isv.userid"] as? String,
+                let companyId = managedConfiguration["com.appdirect.companyid"] as? String,
+                let marketplaceUrl = managedConfiguration["com.appdirect.marketplace.url"] as? String {
+                
+                self.isvAccountId = isvAccountId
+                self.isvUserId = isvUserId
+                self.companyId = companyId
+                self.marketplaceUrl = marketplaceUrl
+            }
         }
     }
     
