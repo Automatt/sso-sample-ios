@@ -166,7 +166,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
                 
                 // perform the code exchange request
                 
-                if let tokenExchangeRequest = authState?.lastAuthorizationResponse.tokenExchangeRequest() {
+                if let tokenExchangeRequest = authState.lastAuthorizationResponse.tokenExchangeRequest() {
                     OIDAuthorizationService.perform(tokenExchangeRequest, callback: { (tokenResponse: OIDTokenResponse?, error: Error?) in
                         guard error == nil else {
                             print("Token exchange error: \(error?.localizedDescription)")
