@@ -157,7 +157,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
         
         appDelegate.currentAuthorizationFlow = OIDAuthorizationService.present(request, presenting: self, callback: { (authorizationResponse: OIDAuthorizationResponse?, error: Error?) in
             guard error == nil else {
-                print("Authorization request error: \(error?.localizedDescription)")
+                print("Authorization request error: \(describing: error?.localizedDescription)")
                 return
             }
             
@@ -169,7 +169,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
                 if let tokenExchangeRequest = authState.lastAuthorizationResponse.tokenExchangeRequest() {
                     OIDAuthorizationService.perform(tokenExchangeRequest, callback: { (tokenResponse: OIDTokenResponse?, error: Error?) in
                         guard error == nil else {
-                            print("Token exchange error: \(error?.localizedDescription)")
+                            print("Token exchange error: \(describing: error?.localizedDescription)")
                             return
                         }
                         
