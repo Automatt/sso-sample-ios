@@ -151,7 +151,7 @@ class ViewController: UIViewController, ViewControllerDelegate {
         
         // build the auth request
         
-        let request = OIDAuthorizationRequest(configuration: configuration, clientId: clientId, scopes: [OIDScopeOpenID, OIDScopeProfile, "ROLE_USER"], redirectURL: URL(string: redirectUrl)!, responseType: "code id_token", additionalParameters: appConfigParameters)
+        let request = OIDAuthorizationRequest(configuration: configuration, clientId: clientId, scopes: [OIDScopeOpenID, OIDScopeProfile, "ROLE_USER"], redirectURL: URL(string: redirectUrl)!, responseType: "code", additionalParameters: appConfigParameters)
         
         // present the auth request
         
