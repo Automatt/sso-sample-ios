@@ -22,7 +22,7 @@ class sso_sample_iosTests: XCTestCase {
     }
     
     func testThatObjectCanBeCreatedFromUrl() {
-        let didParseUrl = expectationWithDescription("testThatObjectCanBeCreatedFromUrl")
+        let didParseUrl = expectation(description: "testThatObjectCanBeCreatedFromUrl")
         
         let testToken = ""
         
@@ -40,7 +40,7 @@ class sso_sample_iosTests: XCTestCase {
             }
         }
         
-        waitForExpectationsWithTimeout(10, handler: nil)
+        waitForExpectations(timeout: 10, handler: nil)
     }
     
 }
